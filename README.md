@@ -81,7 +81,7 @@ control-desviaciones-pozo/
 
 ## Instalación
 
-Requiere Python 3.10 o superior.
+Requiere Python 3.10 o superior. Para obtener el código, use `git clone https://github.com/toledotoop90-coder/control-desviaciones-pozo` o, sin git, el botón verde **Code → Download ZIP** de esta página, y abra una terminal dentro de la carpeta.
 
 **Windows (PowerShell)**
 
@@ -90,6 +90,8 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 ```
+
+Si PowerShell responde que la ejecución de scripts está deshabilitada, corra antes `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` (solo afecta esa ventana) o use `cmd` con `.venv\Scripts\activate.bat`.
 
 **macOS o Linux**
 
