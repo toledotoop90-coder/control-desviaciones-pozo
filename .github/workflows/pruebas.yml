@@ -1,0 +1,28 @@
+name: Pruebas
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Instalar
+        run: pip install -e ".[dev]"
+      - name: Estilo
+        run: ruff check src tests
+      - name: Pruebas
+        run: pytest --cov=costos --cov-report=term-missing
+      - name: Análisis completo de extremo a extremo
+        run: |
+          costos generar-sintetico --salida data/sintetico
+          costos ejecutar --datos data/sintetico --salida reports/sintetico
+          costos figuras-documento --datos data/anonimizado --salida reports/figuras_documento

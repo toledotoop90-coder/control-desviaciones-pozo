@@ -1,0 +1,9 @@
+paso,valor,tipo
+VO programado,100.0,total
+Descuento no aplicado,-5.423,vo
+VO a precio vigente,,subtotal
+Cantidad menor,-8.308,operativo
+Partidas no usadas,-10.927,operativo
+Partidas nuevas,2.244,operativo
+Precio pagado,-0.0002,operativo
+Ejecutado (empleado),,final

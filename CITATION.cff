@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Si usa este código, por favor cítelo así."
+title: "Control de desviaciones de costo de un pozo exploratorio"
+version: 1.0.0
+date-released: 2026-11-22
+license: MIT
+authors:
+  - family-names: "Toledo Ordaz"
+    given-names: "Pedro"
+    affiliation: "Universidad Anáhuac Puebla"
+keywords:
+  - ciencia de datos
+  - análisis de variaciones
+  - control de costos

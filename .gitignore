@@ -1,0 +1,21 @@
+# Entornos y cachés
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Salidas generadas (se reproducen con `costos ejecutar`)
+reports/
+
+# Protección contra datos reales: nunca subir fuentes institucionales
+data/privado/
+*.xlsx
+*.xlsm
+*.pdf
+*.pptx

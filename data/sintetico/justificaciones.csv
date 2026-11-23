@@ -1,0 +1,7 @@
+etapa,partida,causa,subcausa,justificacion,tipo_soporte,folio_soporte
+1-30,3.05,Desempeño real de la etapa,Menos metros perforados que lo programado,La zapata se asentó a 44 m por formación competente.,ESTADO MECANICO,EM-DEMO-014
+1-30,6.78,Condición prevista que no se presentó,Propiedades del fluido en rango sin el aditivo,No fue necesario el viscosificante.,,
+1-30,6.114,Planeación del VO,Partida programada en otra etapa,El especialista se requirió desde la etapa de 30.,SIS COMPLEMENTARIA,
+1-30,6.174,Optimización,Menos días de renta,Optimización de partida.,MINUTA,MIN-DEMO-033
+2-20,3.10,Desempeño real de la etapa,Más metros perforados que lo programado,Se perforó 30 m más que el intervalo del programa.,REPORTE DIARIO,RD-DEMO-118
+2-20,4.186,Condición prevista que no se presentó,Material de contingencia no requerido,Sin vibración axial significativa.,,

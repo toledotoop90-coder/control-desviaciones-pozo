@@ -1,0 +1,4 @@
+etapa,nombre,estado,prof_inicio,prof_fin,dias_programa,dias_real
+1-30,Etapa 30 pulgadas,cerrada,0,50,5.0,4.0
+2-20,Etapa 20 pulgadas,cerrada,50,900,12.0,18.0
+3-16,Etapa 16 pulgadas,abierta,900,2300,22.0,

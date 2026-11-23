@@ -1,0 +1,26 @@
+pozo,etapa,partida,descripcion,unidad,contrato,subrubro,cantidad,pu,fuente
+POZO-DEMO,1-30,3.05,"Servicio integrado de perforación, conductor 30 pulgadas",METRO PERFORADO,A,1.2.03 Perforación por etapas,44.0,1674.5115,empleado
+POZO-DEMO,1-30,2.72,Servicio integral de membrana,DIA,A,1.2.02 Equipo de perforación y terminación,5.3,595.4511,empleado
+POZO-DEMO,1-30,5.83,Tanque recirculador para preparar baches,OPERACION,A,1.2.05 Cementación,1.0,1441.9371,empleado
+POZO-DEMO,1-30,6.90,Material sellante y obturante,KG,A,1.2.06 Fluidos de perforación,650.0,1.3764,empleado
+POZO-DEMO,1-30,6.117,Silos presurizables de 100 toneladas,DIA,A,1.2.06 Fluidos de perforación,10.0,121.1046,empleado
+POZO-DEMO,1-30,6.174,Tanques auxiliares,DIA,A,1.2.06 Fluidos de perforación,22.25,195.8952,empleado
+POZO-DEMO,1-30,9.46,Recuperación y transporte de fluidos residuales,M3,A,1.2.09 Recuperación de fluidos,17.0,107.2941,empleado
+POZO-DEMO,1-30,6.114,Especialista de fluidos en campo,DIA,A,1.2.06 Fluidos de perforación,8.6,418.8069,empleado
+POZO-DEMO,2-20,3.10,"Servicio integrado de perforación, TR 20 pulgadas",METRO PERFORADO,A,1.2.03 Perforación por etapas,880.0,511.8813,empleado
+POZO-DEMO,2-20,2.72,Servicio integral de membrana,DIA,A,1.2.02 Equipo de perforación y terminación,19.5,595.4511,empleado
+POZO-DEMO,2-20,4.23,Servicio direccional con sistema rotatorio,DIA,A,1.2.04 Perforación direccional,6.0,8835.1209,empleado
+POZO-DEMO,2-20,5.83,Tanque recirculador para preparar baches,OPERACION,A,1.2.05 Cementación,2.0,1461.9371,empleado
+POZO-DEMO,2-20,5.138,Bache lavador para lodo base agua,M3,A,1.2.05 Cementación,5.0,223.9533,empleado
+POZO-DEMO,2-20,6.78,Aplicación de viscosificante,KG,A,1.2.06 Fluidos de perforación,1800.0,19.5393,empleado
+POZO-DEMO,2-20,6.114,Especialista de fluidos en campo,DIA,A,1.2.06 Fluidos de perforación,19.5,418.8069,empleado
+POZO-DEMO,2-20,6.117,Silos presurizables de 100 toneladas,DIA,A,1.2.06 Fluidos de perforación,19.5,121.1046,empleado
+POZO-DEMO,2-20,6.174,Tanques auxiliares,DIA,A,1.2.06 Fluidos de perforación,58.0,195.8952,empleado
+POZO-DEMO,2-20,9.46,Recuperación y transporte de fluidos residuales,M3,A,1.2.09 Recuperación de fluidos,45.0,107.2941,empleado
+POZO-DEMO,2-20,7.12,Registro de rayos gamma,OPERACION,A,1.2.07 Registros geofísicos,1.0,2139.1767,empleado
+POZO-DEMO,3-16,3.22,"Servicio integrado de perforación, TR 16 pulgadas",METRO PERFORADO,A,1.2.03 Perforación por etapas,1400.0,632.7441,solicitado
+POZO-DEMO,3-16,2.72,Servicio integral de membrana,DIA,A,1.2.02 Equipo de perforación y terminación,23.0,595.4511,solicitado
+POZO-DEMO,3-16,4.23,Servicio direccional con sistema rotatorio,DIA,A,1.2.04 Perforación direccional,18.0,8835.1209,solicitado
+POZO-DEMO,3-16,6.78,Aplicación de viscosificante,KG,A,1.2.06 Fluidos de perforación,2400.0,19.5393,solicitado
+POZO-DEMO,2-20,6.117,Silos presurizables de 100 toneladas,DIA,A,1.2.06 Fluidos de perforación,19.5,121.1046,empleado
+POZO-OTRO,1-30,6.117,Silos presurizables de 100 toneladas,,A,1.2.06 Fluidos de perforación,4.0,121.1046,empleado
