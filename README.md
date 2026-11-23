@@ -130,11 +130,26 @@ Si alguna validación falla, el comando termina con código 1 y lo avisa.
 ## Pruebas
 
 ```bash
-pytest --cov=costos      # 31 pruebas, cobertura de 98%
+pytest --cov=costos      # 34 pruebas, cobertura de 97%
 ruff check src tests     # estilo y errores comunes
 ```
 
 Las pruebas cubren el ejemplo numérico del documento, una prueba de propiedad (los efectos suman la desviación en 300 partidas aleatorias), los casos de etapa abierta, partida nueva y no usada, la detección de los problemas de calidad sembrados, una **prueba de mutación** (si se altera un efecto en 1 USD, la validación falla), la reproducibilidad del análisis y la consistencia de los índices anonimizados con las cifras del documento.
+
+## Verificación con los datos originales del caso
+
+Los datos del Pozo A son confidenciales y no están en este repositorio. Para comprobar que el paquete reproduce el documento, se corrió en un equipo del área con las fuentes originales convertidas a este formato (sin publicarlas). Resultado:
+
+| Cifra del documento | Análisis interno | Este paquete |
+| --- | --- | --- |
+| Puente de etapas cerradas (VO = 100) | −5.423, −8.308, −10.927, +2.244, −0.0002 → 77.6 | Igual |
+| Desviación total y operativa por etapa (%) | 30": −32.8 / −27.1; 20": −21.0 / −15.6; 16": −2.5 / −0.8 | Igual |
+| Partidas a justificar | 13, 28 y 22 (63 en total) | Igual |
+| Participación por subrubro (%) | 63.7, 25.5, 9.0, 2.2, 0.3 | Igual |
+| Partidas comparadas | 90 | 90; diferencia máxima por partida de medio centavo |
+| Validaciones | | 5 de 5 correctas, cuadre contra el VO al centavo |
+
+La primera corrida mostró tres diferencias pequeñas (redondeo de montos, un precio de 0.93 que ya traía descuento y un caso de punto flotante). Se corrigieron en la versión 1.1.0; el detalle está en [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Reproducibilidad
 

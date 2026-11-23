@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "control-desviaciones-pozo"
-version = "1.0.0"
+version = "1.1.0"
 description = "Análisis de variaciones partida por partida entre el costo programado y el ejecutado de un pozo exploratorio."
 readme = "README.md"
 requires-python = ">=3.10"

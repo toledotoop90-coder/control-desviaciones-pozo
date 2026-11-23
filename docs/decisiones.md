@@ -14,3 +14,4 @@ Cada regla del código corresponde a una decisión confirmada por el líder del 
 | 15 nov 2026 | Documento soporte obligatorio; se considera válido si tiene tipo reconocido y folio | `indicadores.soporte_valido` |
 | 17 nov 2026 | El reporte no se emite si la validación falla | `cli.main` termina con código 1 |
 | 21 nov 2026 | Verificación con prueba de mutación | `tests/test_calidad_y_validacion.py` |
+| 23 nov 2026 | Se respetan el monto y la revisión de precio de la fuente; misma cantidad con centavos de diferencia es redondeo. Surgió al verificar el paquete con los datos originales del caso | `normalizar.monto_fuente`, `normalizar.marca_descuento`, `modelo._motivo` |

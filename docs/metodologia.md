@@ -28,24 +28,25 @@ Es un análisis de variaciones (Datar y Rajan, 2021), adaptado al contrato con t
 
 Definiciones:
 
-* `PU base`: precio del contrato. Sin anexo de precios, se deduce del VO: si el precio tiene más de dos decimales y al dividirlo entre 0.93 da dos decimales, ya trae el descuento.
+* `PU base`: precio del contrato. Sin anexo de precios, se deduce del VO: si el precio tiene más de dos decimales y al dividirlo entre 0.93 da dos decimales, ya trae el descuento. Si la fuente trae la marca `precio_con_descuento` (revisión del área), la marca manda.
+* `VO a PU vigente`: el monto del VO escalado al precio vigente. Si la fuente trae su propio monto (redondeado a centavos) se parte de él; si no, es `q_vo × PU vigente`.
 * `PU vigente = PU base × 0.93` para contratos con acuerdo referencial; igual al PU base en los demás.
 
 Efectos, en este orden:
 
 | Efecto | Fórmula | Se calcula cuando |
 | --- | --- | --- |
-| Descuento VO | `q_vo × PU vigente − monto VO` | La partida tiene VO y es comparable |
-| Cantidad | `(q_real − q_vo) × PU vigente` | Tiene VO y ejecución |
+| Descuento VO | `VO a PU vigente − monto VO` | La partida tiene VO y es comparable |
+| Cantidad | `q_real × PU vigente − VO a PU vigente`; con montos exactos es `(q_real − q_vo) × PU vigente` | Tiene VO y ejecución |
 | Precio | `importe real − q_real × PU vigente` | Tiene VO y ejecución |
 | Nueva | `importe real` | Tiene ejecución y no tiene VO |
-| No usada | `−q_vo × PU vigente` | Tiene VO, no tiene ejecución y la etapa está cerrada |
+| No usada | `−VO a PU vigente` | Tiene VO, no tiene ejecución y la etapa está cerrada |
 
 En una etapa abierta, una partida con VO y sin ejecución no es comparable todavía: queda como pendiente.
 
 **Propiedad de aditividad.** En toda partida comparable, la suma de los cinco efectos es igual a la desviación. Se comprueba en cada corrida (`validacion.aditividad`) y con una prueba de propiedad sobre datos aleatorios.
 
-**Regla de justificación.** Con umbral de 0%, toda partida con efecto cantidad, precio (fuera de redondeo), nueva o no usada requiere justificación. Se exceptúan el efecto descuento y el redondeo de precio.
+**Regla de justificación.** Con umbral de 0%, toda partida con efecto cantidad, precio (fuera de redondeo), nueva o no usada requiere justificación. Se exceptúan el efecto descuento y el redondeo de precio, incluido el caso en que la cantidad es igual a la del VO y la diferencia es solo de centavos.
 
 ## 3. Validación
 

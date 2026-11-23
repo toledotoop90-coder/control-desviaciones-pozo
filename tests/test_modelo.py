@@ -24,7 +24,7 @@ def test_ejemplo_ilustrativo_del_documento(etapas_simples):
     vo = _fuente(
         [
             ("P", "E1", "A", "a", "METRO", "A", "S1", 100, 10.00),
-            ("P", "E1", "C", "c", "DIA", "A", "S2", 10, 15.00),
+            ("P", "E1", "C", "c", "DIA", "X", "S2", 10, 15.00),
         ]
     )
     ej = _fuente(
@@ -33,8 +33,7 @@ def test_ejemplo_ilustrativo_del_documento(etapas_simples):
             ("P", "E1", "B", "b", "DIA", "A", "S2", 5, 20.00),
         ]
     )
-    # C se programó a 15.00 tratándolo como precio ya vigente: contrato sin descuento
-    vo.loc[vo["partida"] == "C", ["pu_base", "pu_vigente"]] = 15.00
+    # C pertenece a un contrato sin descuento: su PU de 15.00 ya es el vigente
     comp = descomponer(vo, ej, etapas_simples).set_index("partida")
 
     a = comp.loc["A"]
@@ -104,3 +103,50 @@ def test_resumir_puente_y_participacion(resultado):
     assert final == pytest.approx(cerr["importe_real"].sum() / cerr["monto_vo_comparable"].sum() * 100)
     part = participacion_operativa(comp)
     assert part["participacion_pct"].sum() == pytest.approx(100.0)
+
+
+def test_monto_de_la_fuente_y_marca_de_descuento(etapas_simples):
+    """Caso Pozo A: el VO trae su monto redondeado y un PU de 0.93 que ya es vigente."""
+    cols = COLS + ["monto", "precio_con_descuento"]
+    vo = agregar_por_partida(
+        normalizar_fuente(
+            pd.DataFrame(
+                [
+                    ("P", "E1", "A", "a", "KG", "A", "S1", 1000, 19.5393, 19540.00, ""),
+                    ("P", "E1", "B", "b", "KG", "A", "S1", 1500, 0.93, 1395.00, "Sí"),
+                ],
+                columns=cols,
+            )
+        )
+    )
+    ej = _fuente([("P", "E1", "B", "b", "KG", "A", "S1", 1500, 0.93)])
+    comp = descomponer(vo, ej, etapas_simples).set_index("partida")
+    # A no se usó: sale el monto del VO tal como está escrito, no 19,539.30
+    assert comp.loc["A", "partida_no_usada"] == pytest.approx(-19540.00)
+    assert comp.loc["A", "efecto_descuento"] == pytest.approx(0.0)
+    # B: la marca evita tratar 0.93 como precio sin descuento
+    assert comp.loc["B", "pu_vigente"] == pytest.approx(0.93)
+    assert comp.loc["B", "desviacion"] == pytest.approx(0.0)
+    assert not comp.loc["B", "requiere_justificacion"]
+
+
+def test_redondeo_con_error_de_punto_flotante(etapas_simples):
+    """Una diferencia de 0.01 en 2 unidades es redondeo aunque se calcule como 0.0100000001."""
+    vo = _fuente([("P", "E1", "A", "a", "PZA", "X", "S1", 2, 10.00)])
+    ej = _fuente([("P", "E1", "A", "a", "PZA", "X", "S1", 2, 10.005)])
+    fila = descomponer(vo, ej, etapas_simples).iloc[0]
+    assert fila["efecto_precio"] == pytest.approx(0.01, abs=1e-6)
+    assert not fila["requiere_justificacion"]
+
+
+def test_misma_cantidad_con_centavos_de_redondeo(etapas_simples):
+    """Caso Pozo A, partida 6.90: VO 2,500 a 0.4836 escrito como 1,200.00; se solicitó lo mismo."""
+    cols = COLS + ["monto"]
+    vo = agregar_por_partida(normalizar_fuente(pd.DataFrame([("P", "E1", "A", "a", "KG", "X", "S1", 2500, 0.4836, 1200.00)], columns=cols)))
+    ej = agregar_por_partida(normalizar_fuente(pd.DataFrame([("P", "E1", "A", "a", "KG", "X", "S1", 2500, 0.48, 1200.00)], columns=cols)))
+    fila = descomponer(vo, ej, etapas_simples).iloc[0]
+    assert fila["efecto_cantidad"] == pytest.approx(9.0)
+    assert fila["efecto_precio"] == pytest.approx(-9.0)
+    assert fila["desviacion_operativa"] == pytest.approx(0.0)
+    assert not fila["requiere_justificacion"]
+    assert fila["motivo"] == "Solo redondeo de precio"

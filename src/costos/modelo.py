@@ -7,7 +7,8 @@ que suman exactamente el total:
                = descuento VO + cantidad + precio + nuevas − no usadas
 
 * Descuento VO = monto VO a PU vigente − monto VO. Es un error del VO.
-* Cantidad     = (q real − q VO) × PU vigente. Variación de eficiencia.
+* Cantidad     = q real × PU vigente − VO a PU vigente. Variación de
+                 eficiencia; con montos exactos es (q real − q VO) × PU vigente.
 * Precio       = q real × (PU real − PU vigente). Variación de precio.
 * Nueva        = importe de partidas sin VO en la etapa.
 * No usada     = −monto VO a PU vigente de partidas sin uso (etapa cerrada).
@@ -51,8 +52,8 @@ def descomponer(vo: pd.DataFrame, ejecutado: pd.DataFrame, etapas: pd.DataFrame,
         desviación total y operativa, y si la partida requiere justificación.
     """
     claves = ["pozo", "etapa", "partida"]
-    a = vo.rename(columns={"cantidad": "q_vo", "pu": "pu_vo", "monto": "monto_vo"})
-    b = ejecutado.rename(columns={"cantidad": "q_real", "pu": "pu_real", "monto": "importe_real"})
+    a = vo.rename(columns={"cantidad": "q_vo", "pu": "pu_vo", "monto": "monto_vo", "monto_vigente": "monto_vo_vigente"})
+    b = ejecutado.drop(columns="monto_vigente", errors="ignore").rename(columns={"cantidad": "q_real", "pu": "pu_real", "monto": "importe_real"})
     cols_info = ["descripcion", "unidad", "contrato", "subrubro"]
     m = a.merge(b, on=claves, how="outer", suffixes=("", "_ej"), indicator=True)
     for c in cols_info + ["pu_vigente"]:
@@ -69,10 +70,13 @@ def descomponer(vo: pd.DataFrame, ejecutado: pd.DataFrame, etapas: pd.DataFrame,
     cerrada = m["estado_etapa"].eq("cerrada")
 
     m["comparable"] = hay_ej | (hay_vo & cerrada)
-    vo_vig = m["q_vo"] * m["pu_vigente"]
+    # VO a precio vigente: el monto de la fuente escalado al precio vigente
+    # (conserva el redondeo del VO); sin ese dato, cantidad × PU vigente.
+    exacto = m["q_vo"] * m["pu_vigente"]
+    vo_vig = m["monto_vo_vigente"].fillna(exacto) if "monto_vo_vigente" in m.columns else exacto
 
     m["efecto_descuento"] = np.where(hay_vo & m["comparable"], vo_vig - m["monto_vo"], 0.0)
-    m["efecto_cantidad"] = np.where(hay_vo & hay_ej, (m["q_real"] - m["q_vo"]) * m["pu_vigente"], 0.0)
+    m["efecto_cantidad"] = np.where(hay_vo & hay_ej, m["q_real"] * m["pu_vigente"] - vo_vig, 0.0)
     m["efecto_precio"] = np.where(hay_vo & hay_ej, m["importe_real"] - m["q_real"] * m["pu_vigente"], 0.0)
     m["partida_nueva"] = np.where(~hay_vo & hay_ej, m["importe_real"], 0.0)
     m["partida_no_usada"] = np.where(hay_vo & ~hay_ej & cerrada, -vo_vig, 0.0)
@@ -115,17 +119,26 @@ def _motivo(r, cfg: Config) -> tuple[bool, str]:
     tol = cfg.tolerancia_cuadre
     if not r.comparable:
         return False, "Pendiente: etapa abierta sin ejecución de la partida"
-    redondeo = abs(r.efecto_precio) <= cfg.tolerancia_redondeo * max(abs(r.q_real), 1.0)
+    # 1e-9 absorbe el error de punto flotante (0.01 calculado como 0.0100000001)
+    limite = cfg.tolerancia_redondeo * max(abs(r.q_real), 1.0) + 1e-9
+    redondeo = abs(r.efecto_precio) <= limite
+    # Misma cantidad que el VO y solo centavos de diferencia: es redondeo de los
+    # montos (el VO calcula con el precio a dos decimales), no un efecto cantidad.
+    solo_centavos = abs(r.q_real - r.q_vo) <= 1e-9 and abs(r.efecto_cantidad + r.efecto_precio) <= limite
     base = abs(r.monto_vo_comparable) if r.monto_vo_comparable else abs(r.importe_real)
     operativa = abs(r.desviacion_operativa)
     if base and operativa / base <= cfg.umbral_justificacion and cfg.umbral_justificacion > 0:
         return False, "Desviación operativa dentro del umbral"
-    activos = [n for n in _EFECTOS_OPERATIVOS if abs(getattr(r, n)) > tol and not (n == "efecto_precio" and redondeo)]
+    activos = [
+        n
+        for n in _EFECTOS_OPERATIVOS
+        if abs(getattr(r, n)) > tol and not (n == "efecto_precio" and redondeo) and not (n in ("efecto_cantidad", "efecto_precio") and solo_centavos)
+    ]
     if activos:
         return True, " + ".join(_NOMBRES[n] for n in activos)
     if abs(r.efecto_descuento) > tol:
         return False, "Solo efecto descuento VO (no requiere justificación)"
-    if abs(r.efecto_precio) > tol:
+    if abs(r.efecto_precio) > tol or abs(r.efecto_cantidad) > tol:
         return False, "Solo redondeo de precio"
     return False, "Sin desviación"
 

@@ -61,13 +61,53 @@ def precio_vigente(pu_base: float, contrato: str, cfg: Config = Config()) -> flo
     return pu_base
 
 
+_VERDADERO = {"true", "1", "si", "sí", "s", "yes", "con descuento"}
+_FALSO = {"false", "0", "no", "n", "sin descuento"}
+
+
+def marca_descuento(valor: object) -> bool | None:
+    """Lee la marca opcional ``precio_con_descuento`` de una fuente.
+
+    Cuando el área ya revisó el precio contra el anexo, la fuente puede
+    traer la marca y esta manda sobre la regla de los decimales. Vacío o
+    no reconocido devuelve ``None`` y se aplica la regla.
+
+    >>> marca_descuento("Sí"), marca_descuento("no"), marca_descuento("")
+    (True, False, None)
+    """
+    if isinstance(valor, bool):
+        return valor
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
+        return None
+    texto = str(valor).strip().lower()
+    if texto in _VERDADERO:
+        return True
+    if texto in _FALSO:
+        return False
+    return None
+
+
+def monto_fuente(df: pd.DataFrame) -> pd.Series:
+    """Monto de cada renglón tal como lo trae la fuente.
+
+    Si la fuente trae la columna opcional ``monto`` se respeta (el VO
+    calcula sus montos con el precio redondeado a dos decimales y la
+    cédula se arma con esos montos). Si no, se calcula cantidad × PU.
+    """
+    calculado = pd.to_numeric(df["cantidad"], errors="raise") * pd.to_numeric(df["pu"], errors="raise")
+    if "monto" not in df.columns:
+        return calculado
+    declarado = pd.to_numeric(df["monto"], errors="coerce")
+    return declarado.where(declarado.notna(), calculado)
+
+
 def normalizar_fuente(df: pd.DataFrame, cfg: Config = Config()) -> pd.DataFrame:
     """Normaliza VO o ejecutado: claves, texto, montos y precios.
 
-    Agrega las columnas ``monto``, ``pu_base``, ``pu_vigente`` y
-    ``con_descuento``. Agrupa renglones repetidos de la misma partida en la
-    misma etapa sumando cantidades, porque el modelo trabaja a nivel de
-    partida por etapa.
+    Agrega las columnas ``monto``, ``monto_vigente``, ``pu_base``,
+    ``pu_vigente`` y ``con_descuento``. ``monto_vigente`` es el monto del
+    renglón al precio vigente, escalado desde el monto de la fuente para
+    conservar su redondeo.
     """
     out = df.copy()
     out["partida"] = out["partida"].map(normalizar_clave)
@@ -76,12 +116,22 @@ def normalizar_fuente(df: pd.DataFrame, cfg: Config = Config()) -> pd.DataFrame:
     out["unidad"] = out["unidad"].str.upper()
     out["cantidad"] = pd.to_numeric(out["cantidad"], errors="raise")
     out["pu"] = pd.to_numeric(out["pu"], errors="raise")
-    out["monto"] = out["cantidad"] * out["pu"]
-    out["con_descuento"] = [
-        (c not in cfg.contratos_con_descuento) or precio_ya_tiene_descuento(p, cfg) for p, c in zip(out["pu"], out["contrato"], strict=True)
-    ]
-    out["pu_base"] = [precio_base(p, c, cfg) for p, c in zip(out["pu"], out["contrato"], strict=True)]
+    out["monto"] = monto_fuente(out)
+    marcas = out["precio_con_descuento"].map(marca_descuento) if "precio_con_descuento" in out.columns else [None] * len(out)
+    con_desc, bases = [], []
+    for p, c, marca in zip(out["pu"], out["contrato"], marcas, strict=True):
+        if c not in cfg.contratos_con_descuento:
+            con_desc.append(True)
+            bases.append(float(p))
+            continue
+        tiene = precio_ya_tiene_descuento(p, cfg) if marca is None else marca
+        con_desc.append(tiene)
+        bases.append(round(p / cfg.factor_vigente, 2) if tiene else float(p))
+    out["con_descuento"] = con_desc
+    out["pu_base"] = bases
     out["pu_vigente"] = [precio_vigente(b, c, cfg) for b, c in zip(out["pu_base"], out["contrato"], strict=True)]
+    escala = (out["pu_vigente"] / out["pu"]).where(out["pu"] != 0)
+    out["monto_vigente"] = (out["monto"] * escala).where(escala.notna(), out["cantidad"] * out["pu_vigente"])
     return out
 
 
@@ -108,6 +158,7 @@ def agregar_por_partida(df: pd.DataFrame) -> pd.DataFrame:
         pu_vigente=("pu_vigente", "max"),
         cantidad=("cantidad", "sum"),
         monto=("monto", "sum"),
+        monto_vigente=("monto_vigente", "sum"),
     )
     primeras["pu"] = primeras["monto"] / primeras["cantidad"].where(primeras["cantidad"] != 0)
     return primeras

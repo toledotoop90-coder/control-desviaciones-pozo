@@ -13,4 +13,4 @@ from costos.config import Config
 from costos.modelo import descomponer, resumir
 
 __all__ = ["Config", "descomponer", "resumir"]
-__version__ = "1.0.0"
+__version__ = "1.1.0"

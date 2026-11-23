@@ -11,6 +11,7 @@ import pandas as pd
 
 from costos.config import Config
 from costos.modelo import EFECTOS
+from costos.normalizar import monto_fuente
 
 COLUMNAS = ["prueba", "que_verifica", "esperado", "obtenido", "resultado"]
 
@@ -37,8 +38,8 @@ def validar(vo_crudo: pd.DataFrame, ejecutado_crudo: pd.DataFrame, comparativa: 
         cedula: Contenido de ``cedula.json`` con ``total_vo``.
     """
     tol = cfg.tolerancia_cuadre
-    total_vo = float((vo_crudo["cantidad"].astype(float) * vo_crudo["pu"].astype(float)).sum())
-    total_ej = float((ejecutado_crudo["cantidad"].astype(float) * ejecutado_crudo["pu"].astype(float)).sum())
+    total_vo = float(monto_fuente(vo_crudo).sum())
+    total_ej = float(monto_fuente(ejecutado_crudo).sum())
     filas = [
         _fila("Cuadre VO contra cédula", "La base de comparación es la oficial", float(cedula["total_vo"]), total_vo, tol),
         _fila("Conservación del VO", "Ningún renglón del VO se pierde al normalizar", total_vo, float(comparativa["monto_vo"].sum()), tol),

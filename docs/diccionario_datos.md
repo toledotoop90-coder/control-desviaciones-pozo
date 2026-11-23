@@ -15,10 +15,12 @@
 | `subrubro` | texto | Capítulo del catálogo |
 | `cantidad` | número | Cantidad programada |
 | `pu` | número | Precio unitario del VO |
+| `monto` | número, opcional | Monto del renglón tal como lo trae la fuente. Si falta se calcula cantidad × PU |
+| `precio_con_descuento` | texto, opcional | `Sí`/`Con descuento` o `No`/`Sin descuento` si el área ya revisó el precio. Vacío: se aplica la regla de los decimales |
 
 ### `ejecutado.csv`
 
-Mismas columnas que `vo.csv` más `fuente`: `empleado` (cantidad real de campo, etapas cerradas) o `solicitado` (etapas abiertas).
+Mismas columnas que `vo.csv` (incluidas las opcionales) más `fuente`: `empleado` (cantidad real de campo, etapas cerradas) o `solicitado` (etapas abiertas).
 
 ### `etapas.csv`
 
