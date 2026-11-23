@@ -36,3 +36,42 @@ jobs:
       - name: Notebook de las seis fases
         shell: bash
         run: jupyter nbconvert --to notebook --execute --output-dir reports/notebook notebooks/analisis_seis_fases.ipynb
+
+  revision-doble-clic:
+    # Corre los mismos archivos que usaría quien revisa el proyecto, en una copia recién descargada
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Doble clic en Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: ejecutar_windows.bat
+      - name: Doble clic en macOS o Linux
+        if: runner.os != 'Windows'
+        run: ./ejecutar_mac_linux.command
+      - name: El reporte existe
+        shell: bash
+        run: test -s reports/reporte.html && grep -q "5 de 5" reports/reporte.html
+
+  colab-simulado:
+    # El notebook suelto, en un entorno sin el paquete, como lo abre Google Colab
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Entorno sin el paquete
+        run: pip install pandas numpy matplotlib ipykernel nbconvert
+      - name: Ejecutar el notebook fuera del repositorio
+        run: |
+          mkdir -p /tmp/colab && cp notebooks/analisis_seis_fases.ipynb /tmp/colab/
+          cd /tmp/colab && jupyter nbconvert --to notebook --execute --output ejecutado.ipynb analisis_seis_fases.ipynb
+          python -c "import json; nb=json.load(open('ejecutado.ipynb')); e=[o for c in nb['cells'] if c['cell_type']=='code' for o in c.get('outputs',[]) if o['output_type']=='error']; assert not e, e; print('Notebook sin errores')"

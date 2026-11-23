@@ -1,5 +1,17 @@
 # Cambios
 
+## 1.2.0 (23 nov 2026)
+
+Para que cualquier persona revise el proyecto sin pelear con la instalación.
+
+* `costos revisar`: un solo comando corre el análisis, reproduce las figuras del documento y abre un reporte HTML.
+* Reporte HTML autocontenido (`reporte.html`): validaciones, desviación por etapa, figuras embebidas, calidad y partidas a justificar. Se abre sin internet y es idéntico entre corridas.
+* Archivos de doble clic: `ejecutar_windows.bat` y `ejecutar_mac_linux.command`. Crean un entorno aislado, instalan, corren las pruebas y abren el reporte.
+* Notebook listo para Google Colab, con botón en el README: la primera celda descarga e instala el paquete.
+* La integración continua prueba los archivos de doble clic en Windows, macOS y Linux, y el notebook en un entorno sin el paquete, como en Colab.
+* Se elimina la advertencia de licencia que aparecía al instalar.
+* 36 pruebas.
+
 ## 1.1.0 (23 nov 2026)
 
 Verificación con los datos originales del caso. Al correr el paquete con las fuentes reales del Pozo A (en un equipo del área, sin publicarlas) aparecieron tres diferencias contra el análisis interno. Se corrigieron y ahora el resultado coincide partida por partida (diferencia máxima de medio centavo) y en todas las cifras del documento.

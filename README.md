@@ -1,10 +1,24 @@
 # Control de desviaciones de costo de un pozo exploratorio
 
+[![Pruebas](https://github.com/toledotoop90-coder/control-desviaciones-pozo/actions/workflows/pruebas.yml/badge.svg)](https://github.com/toledotoop90-coder/control-desviaciones-pozo/actions/workflows/pruebas.yml) [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/toledotoop90-coder/control-desviaciones-pozo/blob/main/notebooks/analisis_seis_fases.ipynb)
+
 Proyecto final de **Ciencia de Datos** · Maestría en Big data e IA · Universidad Anáhuac Puebla
 
 Este repositorio contiene el código que reproduce el análisis del caso *Del costo programado al ejecutado*: comparar, partida por partida, lo programado en el volumen de obra (VO) contra lo ejecutado en un pozo exploratorio, y explicar cada desviación con cifras exactas y trazables.
 
 > **Confidencialidad.** Los datos reales del pozo son confidenciales y **no** están en este repositorio. El código corre sobre un **pozo sintético** que imita la estructura del caso, y las figuras del documento se reproducen con los **índices anonimizados** que ya se publicaron en él (sin montos absolutos).
+
+## Revisión rápida: tres formas de correrlo
+
+| Opción | Qué necesita | Cómo |
+| --- | --- | --- |
+| **1. En el navegador** | Solo una cuenta de Google | Clic en [Abrir en Colab](https://colab.research.google.com/github/toledotoop90-coder/control-desviaciones-pozo/blob/main/notebooks/analisis_seis_fases.ipynb) y luego *Entorno de ejecución → Ejecutar todas*. Recorre las seis fases con tablas y figuras. |
+| **2. Doble clic en su computadora** | Python 3.10 o superior ([python.org](https://www.python.org/downloads/)) | Descargue el código (botón verde **Code → Download ZIP**), descomprímalo y dé doble clic en `ejecutar_windows.bat` (Windows) o `ejecutar_mac_linux.command` (macOS). Instala todo en una carpeta aislada, corre las pruebas y abre un **reporte en el navegador**. |
+| **3. Terminal** | Python 3.10 o superior | Ver [Instalación](#instalación) y [Uso](#uso). Todo en un paso: `costos revisar`. |
+
+El reporte (`reports/reporte.html`) muestra las validaciones, la desviación por etapa, las figuras, los hallazgos de calidad, las partidas a justificar y las figuras del documento reproducidas con los índices anonimizados del caso.
+
+Notas: en Windows, si aparece el aviso azul de SmartScreen, elija *Más información → Ejecutar de todas formas*. En macOS, si dice que no puede abrir el archivo, use clic derecho → *Abrir*, o en la Terminal `bash ejecutar_mac_linux.command`. Los scripts no tocan nada fuera de la carpeta del proyecto.
 
 ## Qué resuelve
 
@@ -68,6 +82,7 @@ control-desviaciones-pozo/
 │   ├── visualizacion.py   Figuras
 │   ├── indicadores.py     Indicadores de control
 │   ├── pipeline.py        Orquestación de las fases
+│   ├── reporte.py         Reporte HTML autocontenido
 │   ├── sintetico.py       Generador del pozo sintético
 │   └── cli.py             Línea de comandos `costos`
 ├── data/
@@ -76,6 +91,8 @@ control-desviaciones-pozo/
 ├── notebooks/             Notebook ejecutado con las seis fases
 ├── tests/                 Pruebas automáticas (pytest)
 ├── docs/                  Metodología, diccionario de datos, decisiones y uso de IA
+├── ejecutar_windows.bat   Revisión con doble clic en Windows
+├── ejecutar_mac_linux.command  Revisión con doble clic en macOS (o bash en Linux)
 └── .github/workflows/     Integración continua
 ```
 
@@ -105,6 +122,14 @@ Solo para correr el análisis, sin herramientas de desarrollo: `pip install -r r
 
 ## Uso
 
+Todo en un paso (análisis, figuras del documento y reporte HTML que se abre en el navegador):
+
+```bash
+costos revisar
+```
+
+Por partes:
+
 ```bash
 costos generar-sintetico --salida data/sintetico
 costos ejecutar --datos data/sintetico --salida reports/sintetico
@@ -124,6 +149,7 @@ costos figuras-documento --datos data/anonimizado --salida reports/figuras_docum
 | `huellas_fuentes.csv` | Huella SHA-256 de cada archivo fuente |
 | `figuras/` | Cascada, Pareto y metros en PNG |
 | `resumen.md` | Resumen en texto |
+| `reporte.html` | Reporte para el navegador con todo lo anterior y las figuras embebidas |
 
 Si alguna validación falla, el comando termina con código 1 y lo avisa.
 
@@ -132,7 +158,7 @@ Si alguna validación falla, el comando termina con código 1 y lo avisa.
 ## Pruebas
 
 ```bash
-pytest --cov=costos      # 34 pruebas, cobertura de 97%
+pytest --cov=costos      # 36 pruebas, cobertura de 98%
 ruff check src tests     # estilo y errores comunes
 ```
 

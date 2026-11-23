@@ -50,3 +50,23 @@ def test_figuras_del_documento(raiz, tmp_path):
     rutas = pipeline.figuras_documento(raiz / "data" / "anonimizado", tmp_path)
     assert len(rutas) == 3
     assert all(r.stat().st_size > 10_000 for r in rutas)
+
+
+def test_reporte_html_autocontenido(tmp_path):
+    from costos import cli
+
+    assert cli.main(["revisar", "--salida", str(tmp_path), "--no-abrir"]) == 0
+    texto = (tmp_path / "reporte.html").read_text(encoding="utf-8")
+    assert "5 de 5" in texto and "validaciones correctas" in texto
+    assert texto.count("data:image/png;base64,") == 6  # tres del análisis y tres del documento
+    assert "pozo sintético" in texto
+    assert "-0.00" not in texto
+    assert "http://" not in texto and "https://" not in texto  # no depende de internet
+
+
+def test_reporte_es_reproducible(tmp_path):
+    from costos import cli
+
+    cli.main(["revisar", "--salida", str(tmp_path / "a"), "--no-abrir"])
+    cli.main(["revisar", "--salida", str(tmp_path / "b"), "--no-abrir"])
+    assert (tmp_path / "a" / "reporte.html").read_bytes() == (tmp_path / "b" / "reporte.html").read_bytes()

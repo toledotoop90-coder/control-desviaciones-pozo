@@ -1,8 +1,8 @@
 """Orquestación de las fases Prepare, Process, Analyze, Share y Act.
 
 ``ejecutar`` corre el análisis completo de un pozo y escribe todas las
-salidas en una carpeta: tablas en CSV, figuras en PNG y un resumen en
-Markdown. La misma entrada produce siempre la misma salida.
+salidas en una carpeta: tablas en CSV, figuras en PNG, un resumen en
+Markdown y un reporte HTML. La misma entrada produce siempre la misma salida.
 """
 
 from __future__ import annotations
@@ -167,8 +167,11 @@ def ejecutar(carpeta_datos: Path | str, carpeta_salida: Path | str, cfg: Config 
     for nombre, df in tablas.items():
         df.to_csv(salida / f"{nombre}.csv", index=False, encoding="utf-8-sig")
     etapas = cargar_pozo(carpeta_datos)["etapas"]
-    figuras(res, etapas, salida / "figuras")
+    rutas = figuras(res, etapas, salida / "figuras")
     (salida / "resumen.md").write_text(_resumen_md(res), encoding="utf-8")
+    from costos import reporte  # importación local: reporte depende de este módulo
+
+    reporte.escribir(res, rutas, salida / "reporte.html")
     log.info("Salidas escritas en %s", salida)
     return res
 
