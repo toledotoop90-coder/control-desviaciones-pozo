@@ -156,7 +156,7 @@ La primera corrida mostró tres diferencias pequeñas (redondeo de montos, un pr
 * La misma entrada produce la misma salida: el modelo no tiene componentes aleatorios.
 * El pozo sintético se genera de forma determinística.
 * Cada corrida guarda la huella SHA-256 de las fuentes.
-* La integración continua corre las pruebas, el análisis completo y el notebook en Windows, macOS y Linux, con Python 3.10, 3.12 y 3.13, en cada cambio.
+* La integración continua corre las pruebas, el análisis completo y el notebook en Windows, macOS y Linux, con Python 3.10, 3.12 y 3.14, en cada cambio.
 
 ## Uso de inteligencia artificial
 
