@@ -6,10 +6,12 @@ on:
 
 jobs:
   pruebas:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -22,7 +24,11 @@ jobs:
       - name: Pruebas
         run: pytest --cov=costos --cov-report=term-missing
       - name: Análisis completo de extremo a extremo
+        shell: bash
         run: |
           costos generar-sintetico --salida data/sintetico
           costos ejecutar --datos data/sintetico --salida reports/sintetico
           costos figuras-documento --datos data/anonimizado --salida reports/figuras_documento
+      - name: Notebook de las seis fases
+        shell: bash
+        run: jupyter nbconvert --to notebook --execute --output-dir reports/notebook notebooks/analisis_seis_fases.ipynb
